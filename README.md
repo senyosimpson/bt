@@ -1,2 +1,3 @@
-# trace
-bpf trace scripts
+# bt
+
+a collection of bpftrace scripts
