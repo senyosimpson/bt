@@ -1,0 +1,31 @@
+#ifndef BPFTRACE_HAVE_BTF
+#define AF_INET   2
+#define AF_INET6 10
+#endif
+
+BEGIN
+{
+	printf("Tracing tcp syn/ack retransmits. Hit Ctrl-C to end.\n");
+	printf("%-8s %-20s %-20s\n", "PID", "SRC", "DST");
+}
+
+tracepoint:tcp:tcp_retransmit_synack
+{
+	printf("hit tracepoint!");
+	$family = args->family;
+
+	if ($family == AF_INET || $family == AF_INET6) {
+		$src_addr = ntop(0);
+		$dst_addr = ntop(0); 
+
+		if ($family == AF_INET) {
+			$src_addr = ntop(args->saddr);
+			$dst_addr = ntop(args->daddr);
+		} else {
+			$src_addr = ntop(args->saddr_v6);
+			$dst_addr = ntop(args->daddr_v6);
+		}
+	}
+
+	printf("%-8d %-20s %-20s\n", pid, $src_addr, $dst_addr);
+}
